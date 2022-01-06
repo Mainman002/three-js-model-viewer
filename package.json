@@ -1,0 +1,18 @@
+{
+  "dependencies": {
+    "electron": "^16.0.6",
+    "three": "^0.136.0"
+  },
+  "name": "3d-hdr-setup",
+  "version": "1.0.0",
+  "main": "main.js",
+  "devDependencies": {
+    "electron": "^13.1.7"
+  },
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
