@@ -1,16 +1,15 @@
 import * as THREE from '../node_modules/three/build/three.module.js';
-import { TrackballControls } from 'https://cdn.skypack.dev/three/examples/jsm/controls/TrackballControls';
-import { OrbitControls } from 'https://cdn.skypack.dev/three/examples/jsm/controls/OrbitControls';
-import { GLTFLoader } from 'https://cdn.skypack.dev/three/examples/jsm/loaders/GLTFLoader.js';
-import { RGBELoader } from 'https://cdn.skypack.dev/three/examples/jsm/loaders/RGBELoader.js';
-import { EffectComposer } from 'https://cdn.skypack.dev/three/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from 'https://cdn.skypack.dev/three/examples/jsm/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'https://cdn.skypack.dev/three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { ShaderPass } from 'https://cdn.skypack.dev/three/examples/jsm/postprocessing/ShaderPass.js';
-import { LUTPass } from 'https://cdn.skypack.dev/three/examples/jsm/postprocessing/LUTPass.js';
-import { LUTCubeLoader } from 'https://cdn.skypack.dev/three/examples/jsm/loaders/LUTCubeLoader.js';
-import { GammaCorrectionShader } from 'https://cdn.skypack.dev/three/examples/jsm/shaders/GammaCorrectionShader.js';
-import { GUI } from 'https://cdn.skypack.dev/three/examples/jsm/libs/lil-gui.module.min.js';
+import { OrbitControls } from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from '../node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+import { RGBELoader } from '../node_modules/three/examples/jsm/loaders/RGBELoader.js';
+import { EffectComposer } from '../node_modules/three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from '../node_modules/three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from '../node_modules/three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from '../node_modules/three/examples/jsm/postprocessing/ShaderPass.js';
+import { LUTPass } from '../node_modules/three/examples/jsm/postprocessing/LUTPass.js';
+import { LUTCubeLoader } from '../node_modules/three/examples/jsm/loaders/LUTCubeLoader.js';
+import { GammaCorrectionShader } from '../node_modules/three/examples/jsm/shaders/GammaCorrectionShader.js';
+import { GUI } from '../node_modules/three/examples/jsm/libs/lil-gui.module.min.js';
 
 const params = {
     fov: 45,
@@ -94,7 +93,7 @@ function init() {
     // scene.add( new THREE.AmbientLight( 0x404040 ) );
 
     new RGBELoader()
-        .setPath( '../img/hdr/desert/' )
+        .setPath( 'img/hdr/desert/' )
         .load( 'quarry_01_2k.hdr', function ( texture ) {
 
             texture.mapping = THREE.EquirectangularReflectionMapping;
@@ -126,7 +125,7 @@ function init() {
         Object.keys( lutMap ).forEach( name => {
             
             new LUTCubeLoader()
-            .load( '../luts/' + name, function ( result ) {
+            .load( 'luts/' + name, function ( result ) {
                 
                 lutMap[ name ] = result;
                 
@@ -134,8 +133,8 @@ function init() {
             
         } );
         
-    load_model(scene, '../models/TieFighter/', 'TieFighter.gltf', {x: 0, y: 1.2, z: 0} );
-    load_model(scene, '../models/TieFighter/', 'Floor.gltf', {x: 0, y: 0, z: 0} );
+    load_model(scene, 'models/TieFighter/', 'TieFighter.gltf', {x: 0, y: 1.2, z: 0} );
+    load_model(scene, 'models/TieFighter/', 'Floor.gltf', {x: 0, y: 0, z: 0} );
 
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio( window.devicePixelRatio );
@@ -229,7 +228,7 @@ camera.position.y = camera.position.y + 0.5;
 
 function render() {
 
-    console.log(`x: ${camera.position.x}, y: ${camera.position.y}, z: ${camera.position.z}`);
+    // console.log(`x: ${camera.position.x}, y: ${camera.position.y}, z: ${camera.position.z}`);
 
     requestAnimationFrame( render );
 

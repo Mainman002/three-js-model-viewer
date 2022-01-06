@@ -7,9 +7,12 @@
   "version": "1.0.0",
   "main": "main.js",
   "devDependencies": {
-    "electron": "^13.1.7"
+    "electron": "^13.1.7",
+    "esbuild": "^0.13.8",
+    "three": "^0.136.0"
   },
   "scripts": {
+    "build": "esbuild js/main.js --bundle --outfile=js/main_o.js --sourcemap",
     "start": "electron ."
   },
   "author": "",
