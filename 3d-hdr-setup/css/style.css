@@ -1,4 +1,22 @@
 html {
     overflow: hidden;
-    background-color: teal;
+    background-color: rgb(48, 53, 53);
+}
+
+body {
+    margin: 0px;
+    height: 100vh;
+}
+
+#canvas{
+    background: linear-gradient(0deg, rgb(16, 16, 24), rgb(52, 65, 70));
+    /* background-color: rgb(41, 41, 41); */
+    border: 1px solid rgb(0, 120, 163);
+    border: 1px solid rgb(34, 34, 34);
+    width:32px;
+    height:32px;
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
 }

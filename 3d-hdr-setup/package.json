@@ -1,19 +1,18 @@
 {
   "dependencies": {
     "electron": "^16.0.6",
-    "three": "^0.136.0"
+    "three": "^0.136.0",
+    "three-gltf-loader": "^1.111.0"
   },
-  "name": "3d-hdr-setup",
+  "name": "3d-shadows",
   "version": "1.0.0",
   "main": "main.js",
   "devDependencies": {
-    "electron": "^13.1.7",
-    "esbuild": "^0.13.8",
-    "three": "^0.136.0"
+    "electron": "^13.1.7"
   },
   "scripts": {
-    "build": "esbuild js/main.js --bundle --outfile=js/main_o.js --sourcemap",
-    "start": "electron ."
+    "start": "electron .",
+    "test": "npm test"
   },
   "author": "",
   "license": "ISC",
