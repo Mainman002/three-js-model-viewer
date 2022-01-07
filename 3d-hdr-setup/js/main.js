@@ -9,7 +9,11 @@ import { ShaderPass } from '../node_modules/three/examples/jsm/postprocessing/Sh
 import { LUTPass } from '../node_modules/three/examples/jsm/postprocessing/LUTPass.js';
 import { LUTCubeLoader } from '../node_modules/three/examples/jsm/loaders/LUTCubeLoader.js';
 import { GammaCorrectionShader } from '../node_modules/three/examples/jsm/shaders/GammaCorrectionShader.js';
+import Stats from '../node_modules/three/examples/jsm/libs/stats.module.js';
 import { GUI } from '../node_modules/three/examples/jsm/libs/lil-gui.module.min.js';
+
+const stats = Stats();
+document.body.appendChild(stats.dom);
 
 const params = {
     fov: 45,
@@ -20,7 +24,10 @@ const params = {
     exposure: 0.98,
     bloomStrength: 0.45,
     bloomThreshold: 0.75,
-    bloomRadius: 0.1
+    bloomRadius: 0.1,
+    positionX: 0,
+    positionY: 0,
+    positionZ: 0 
 };
 
 const lutMap = {
@@ -60,13 +67,20 @@ init();
 render();
 
 
-function load_model(scene, src, model, pos) {
+function load_model(scene, src, model, pos, scale) {
     const loader = new GLTFLoader().setPath( `${src}` );
     loader.load( `${model}`, function ( gltf ) {
         let mesh = gltf.scene.children[0]
         mesh.position.x = pos.x;
         mesh.position.y = pos.y;
         mesh.position.z = pos.z;
+
+        mesh.scale.x = scale.x;
+        mesh.scale.y = scale.y;
+        mesh.scale.z = scale.z;
+        
+        // mesh.castShadow = true;
+        // mesh.receiveShadow = false;
         scene.add( gltf.scene );
         // return gltf.scene.children[0];
     });
@@ -74,6 +88,7 @@ function load_model(scene, src, model, pos) {
 
 
 function init() {
+    // console.log("Test");
 
     const container = document.createElement( 'div' );
     document.body.appendChild( container );
@@ -90,6 +105,116 @@ function init() {
 
     scene = new THREE.Scene();
 
+    const hemiLight = new THREE.HemisphereLight(0xFFFFFF, 0x000020, 1);
+    // hemiLight.castShadow = true;
+    scene.add(hemiLight);
+
+    const ambientLight = new THREE.AmbientLight( 0xffffff, 0.3 );
+    // ambientLight.castShadow = true;
+    scene.add(ambientLight);
+
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.load( 'img/hdr/desert/quarry_01_2k.jpg', function ( texture ) {
+        texture.encoding = THREE.sRGBEncoding;
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        init( texture );
+        // animate();
+    } );
+
+    function init( texture ) {
+        new RGBELoader()
+        .setPath( 'img/hdr/desert/' )
+        .load( 'quarry_01_2k.hdr', function ( texture ) {
+
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+
+            scene.background = texture;
+            scene.environment = texture;
+        } );
+
+        Object.keys( lutMap ).forEach( name => {
+            new LUTCubeLoader()
+            .load( 'luts/' + name, function ( result ) {
+                lutMap[ name ] = result;
+            } );
+        } );
+
+        // const chromeParams = {
+        //     clearcoat: 1.0,
+        //     metalness: 1,
+        //     roughness:0.3,
+        //     color: 0x8418ca,
+        //     normalMap: scene.background ,
+        //     normalScale: new THREE.Vector2(0.15,0.15),
+        //     envMap: scene.environment
+        //   };
+
+        // const chromeMaterial = new THREE.MeshPhysicalMaterial( chromeParams );
+
+        // Load Models
+        load_model(scene, 'models/TieFighter/', 'TieFighter.gltf', 
+        {x: 0, y: 1.2, z: 0}, 
+        {x: 1, y: 1, z: 1});
+
+        load_model(scene, 'models/Floor/', 'Floor.gltf', 
+        {x: 0, y: -1.0, z: 0}, 
+        {x: 2, y: 1, z: 2});
+
+        // cubeRenderTarget1 = new THREE.WebGLCubeRenderTarget( 256, {
+        //     format: THREE.RGBFormat,
+        //     generateMipmaps: true,
+        //     minFilter: THREE.LinearMipmapLinearFilter,
+        //     encoding: THREE.sRGBEncoding // temporary -- to prevent the material's shader from recompiling every frame
+        // } );
+
+        // cubeCamera1 = new THREE.CubeCamera( 1, 1000, cubeRenderTarget1 );
+
+        // cubeRenderTarget2 = new THREE.WebGLCubeRenderTarget( 256, {
+        //     format: THREE.RGBFormat,
+        //     generateMipmaps: true,
+        //     minFilter: THREE.LinearMipmapLinearFilter,
+        //     encoding: THREE.sRGBEncoding
+        // } );
+
+        // cubeCamera2 = new THREE.CubeCamera( 1, 1000, cubeRenderTarget2 );
+
+        // material = new THREE.MeshBasicMaterial( {
+        //     envMap: cubeRenderTarget2.texture,
+        //     combine: THREE.MultiplyOperation,
+        //     reflectivity: 1
+        // } );
+    }
+
+    // const dLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+    // dLight.castShadow = true;
+    // dLight.shadowDarkness = 0.5;
+    // dLight.shadowCameraVisible = true;
+
+    // dLight.shadowCameraRight    =  5;
+    // dLight.shadowCameraLeft     = -5;
+    // dLight.shadowCameraTop      =  5;
+    // dLight.shadowCameraBottom   = -5;
+
+    // scene.add( dLight );
+
+
+    // var sLight = new THREE.SpotLight(0xF6F50B, 10); // spotfény segédgeometriával
+    // sLight.position.set(-60, -17.5, 0);
+    // sLight.castShadow = true;
+    // sLight.distance = 100;
+    // // sLight.target = obj;
+    // sLight.angle = Math.PI * 0.2;
+    // sLight.shadow.camera.near = 0.1;
+    // sLight.shadow.camera.far = 100;
+    // sLight.shadow.mapSize.width = 2048;
+    // sLight.shadow.mapSize.height = 2048;
+
+    // scene.add(sLight);
+
+    // const spotLightHelper = new THREE.SpotLightHelper(sLight);
+    // scene.add(spotLightHelper);
+
+
     // scene.add( new THREE.AmbientLight( 0x404040 ) );
 
     new RGBELoader()
@@ -100,47 +225,32 @@ function init() {
 
             scene.background = texture;
             scene.environment = texture;
-
-            // model
-            // load_model(scene, '../models/TieFighter/', 'TieFighter.gltf');
-            // load_model(scene, '../models/TieFighter/', 'Floor.gltf');
-
-            // const loader = new GLTFLoader().setPath( '../models/TieFighter/' );
-            // loader.load( 'TieFighter.gltf', function ( gltf ) {
-
-            //     scene.add( gltf.scene );
-
-            // } );
-
-            // const loader = new GLTFLoader().setPath( '../models/TieFighter/' );
-            // loader.load( 'TieFighter.gltf', function ( gltf ) {
-
-            //     scene.add( gltf.scene );
-
-            // } );
-
         } );
 
-        
         Object.keys( lutMap ).forEach( name => {
-            
             new LUTCubeLoader()
             .load( 'luts/' + name, function ( result ) {
-                
                 lutMap[ name ] = result;
-                
             } );
-            
         } );
         
-    load_model(scene, 'models/TieFighter/', 'TieFighter.gltf', {x: 0, y: 1.2, z: 0} );
-    load_model(scene, 'models/TieFighter/', 'Floor.gltf', {x: 0, y: 0, z: 0} );
+    // Load Models
+    // load_model(scene, 'models/TieFighter/', 'TieFighter.gltf', 
+    // {x: 0, y: 1.2, z: 0}, 
+    // {x: 1, y: 1, z: 1});
 
-    renderer = new THREE.WebGLRenderer();
+    // load_model(scene, 'models/TieFighter/', 'Floor.gltf', 
+    // {x: 0, y: -1.0, z: 0}, 
+    // {x: 2, y: 1, z: 2});
+
+    renderer = new THREE.WebGLRenderer( {canvas:canvas} );
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1;
+    renderer.physicallyCorrectLights = true
+    renderer.shadowMap.enabled = true
+    // // renderer.shadowMapType = THREE.PCFSoftShadowMap;
     container.appendChild( renderer.domElement );
 
     const target = new THREE.WebGLRenderTarget( {
@@ -175,54 +285,104 @@ function init() {
     controls.update();
 
     gui = new GUI();
-    gui.width = 350;
 
-    gui.add( params, 'fov', 0.1, 100 ).onChange( function ( value ) {
+    // Camera Sub Panel
+    const folder_camera = gui.addFolder ( `Camera` );
+
+    folder_camera.add( params, 'fov', 0.1, 100 ).onChange( function ( value ) {
         camera.fov = Number( value );
         camera.updateProjectionMatrix();
     } );
 
-    gui.add( params, 'enabled' );
-    gui.add( params, 'lut', Object.keys( lutMap ) );
-    gui.add( params, 'intensity' ).min( 0 ).max( 1 );
+    // Enviroment Sub Panel
+    const folder_enviroment = gui.addFolder ( `Enviroment` );
 
-    gui.add( params, 'exposure', 0.1, 2 ).onChange( function ( value ) {
-        renderer.toneMappingExposure = Math.pow( value, 4.0 );
-    } );
-
-    gui.add( params, 'bloomThreshold', 0.0, 1.0 ).onChange( function ( value ) {
-        bloomPass.threshold = Number( value );
-    } );
-
-    gui.add( params, 'bloomStrength', 0.0, 3.0 ).onChange( function ( value ) {
-        bloomPass.strength = Number( value );
-    } );
-
-    gui.add( params, 'bloomRadius', 0.0, 1.0 ).step( 0.01 ).onChange( function ( value ) {
-        bloomPass.radius = Number( value );
-    } );
+    folder_enviroment.add( params, 'enabled' );
+    folder_enviroment.add( params, 'lut', Object.keys( lutMap ) );
+    folder_enviroment.add( params, 'intensity' ).min( 0 ).max( 1 );
 
     if ( renderer.capabilities.isWebGL2 ) {
-        gui.add( params, 'use2DLut' );
+        folder_enviroment.add( params, 'use2DLut' );
     } else {
         params.use2DLut = true;
     }
+
+    // Bloom Sub Panel
+    const folder_bloom = gui.addFolder ( `Bloom` );
+
+    folder_bloom.add( params, 'exposure', 0.1, 2 ).onChange( function ( value ) {
+        renderer.toneMappingExposure = Math.pow( value, 4.0 );
+    } );
+
+    folder_bloom.add( params, 'bloomThreshold', 0.0, 1.0 ).onChange( function ( value ) {
+        bloomPass.threshold = Number( value );
+    } );
+
+    folder_bloom.add( params, 'bloomStrength', 0.0, 3.0 ).onChange( function ( value ) {
+        bloomPass.strength = Number( value );
+    } );
+
+    folder_bloom.add( params, 'bloomRadius', 0.0, 1.0 ).step( 0.01 ).onChange( function ( value ) {
+        bloomPass.radius = Number( value );
+    } );
+
+    // Transform Sub Panel
+    const folder_transform = gui.addFolder ( `Transform` );
+
+    folder_transform.add( params, 'positionX', -10, 10 ).step( 0.01 ).onChange( function ( value ) {
+        
+    } );
+
+    folder_transform.add( params, 'positionY', -10, 10 ).step( 0.01 ).onChange( function ( value ) {
+        
+    } );
+
+    folder_transform.add( params, 'positionZ', -10, 10 ).step( 0.01 ).onChange( function ( value ) {
+        
+    } );
 
     window.addEventListener( 'resize', onWindowResize );
 
 }
 
 function onWindowResize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
+    canvas.style.width = canvas.width;
+    canvas.style.height = canvas.height; 
 
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    composer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize(canvas.width, canvas.height); // Update size
+    composer.setSize(canvas.width, canvas.height);
 
-    render();
+    // camera.aspect = canvas.width / canvas.height; // Update aspect ratio
+    camera.aspect = canvas.clientWidth / canvas.clientHeight;
 
-}
+    camera.updateProjectionMatrix(); // Apply changes
+
+    // const windowHalfX = window.innerWidth;
+    // const windowHalfY = window.innerHeight;
+
+    // camera.aspect = window.innerWidth / window.innerHeight;
+    // camera.updateProjectionMatrix();
+
+    // renderer.setSize( window.innerWidth, window.innerHeight );
+
+    // render();
+  }
+
+
+// function onWindowResize() {
+
+//     camera.aspect = window.innerWidth / window.innerHeight;
+//     camera.updateProjectionMatrix();
+
+//     renderer.setSize( window.innerWidth, window.innerHeight );
+//     composer.setSize( window.innerWidth, window.innerHeight );
+
+    // render();
+
+// }
 
 camera.position.y = camera.position.y + 0.5;
 
@@ -242,5 +402,6 @@ function render() {
     }
 
     composer.render();
+    stats.update();
 
 }
